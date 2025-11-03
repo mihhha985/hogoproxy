@@ -1,0 +1,27 @@
+# Игнорируем ненужные файлы при сборке Docker образа
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+*.md
+
+# Бинарные файлы
+proxy
+main
+*.exe
+
+# Временные файлы Go
+*.test
+*.prof
+vendor/
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS файлы
+.DS_Store
+Thumbs.db

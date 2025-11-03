@@ -1,16 +1,102 @@
-basePath: /v2
-host: petstore.swagger.io
+basePath: /api
+definitions:
+  main.Address:
+    properties:
+      city:
+        type: string
+      house:
+        type: string
+      lat:
+        type: string
+      lon:
+        type: string
+      street:
+        type: string
+    type: object
+  main.RequestAddressGeocode:
+    properties:
+      lat:
+        type: string
+      lng:
+        type: string
+    type: object
+  main.RequestAddressSearch:
+    properties:
+      query:
+        type: string
+    type: object
+  main.ResponseAddress:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/main.Address'
+        type: array
+    type: object
+host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server Petstore server.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
+  contact: {}
+  description: This is a sample server
   title: Swagger Example API
   version: "1.0"
-paths: {}
+paths:
+  /address/geocode:
+    post:
+      consumes:
+      - application/json
+      description: Convert latitude and longitude coordinates to address
+      parameters:
+      - description: Coordinates
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RequestAddressGeocode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ResponseAddress'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Geocode coordinates to address
+      tags:
+      - address
+  /address/search:
+    post:
+      consumes:
+      - application/json
+      description: Search for addresses using a text query
+      parameters:
+      - description: Search query
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RequestAddressSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ResponseAddress'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Search for addresses
+      tags:
+      - address
 swagger: "2.0"

@@ -13,6 +13,12 @@ definitions:
       street:
         type: string
     type: object
+  main.ErrorResponse:
+    properties:
+      error:
+        example: Invalid credentials
+        type: string
+    type: object
   main.RequestAddressGeocode:
     properties:
       lat:
@@ -32,11 +38,33 @@ definitions:
           $ref: '#/definitions/main.Address'
         type: array
     type: object
+  main.TokenResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  main.User:
+    properties:
+      password:
+        example: password123
+        type: string
+      username:
+        example: user@example.com
+        type: string
+    type: object
 host: localhost:8080
 info:
-  contact: {}
-  description: This is a sample server
-  title: Swagger Example API
+  contact:
+    email: support@example.com
+    name: API Support
+    url: https://github.com/mihhha985/hogoproxy
+  description: API для поиска адресов и геокодирования с JWT аутентификацией
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: HugoProxy Address API with JWT Auth
   version: "1.0"
 paths:
   /address/geocode:
@@ -62,10 +90,16 @@ paths:
           description: Bad request
           schema:
             type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Geocode coordinates to address
       tags:
       - address
@@ -92,11 +126,87 @@ paths:
           description: Bad request
           schema:
             type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Search for addresses
       tags:
       - address
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и возвращает JWT токен
+      parameters:
+      - description: Учетные данные пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT токен успешно создан
+          schema:
+            $ref: '#/definitions/main.TokenResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Неверное имя пользователя или пароль
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Вход пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя и возвращает JWT токен для аутентификации
+      parameters:
+      - description: Данные пользователя для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT токен успешно создан
+          schema:
+            $ref: '#/definitions/main.TokenResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

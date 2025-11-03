@@ -37,15 +37,37 @@ type RequestAddressGeocode struct {
 }
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" example:"user@example.com"`
+	Password string `json:"password" example:"password123"`
 }
 
-// @title Swagger Example API
+type TokenResponse struct {
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error" example:"Invalid credentials"`
+}
+
+// @title HugoProxy Address API with JWT Auth
 // @version 1.0
-// @description This is a sample server
+// @description API для поиска адресов и геокодирования с JWT аутентификацией
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url https://github.com/mihhha985/hogoproxy
+// @contact.email support@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
 // @host localhost:8080
 // @BasePath /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func main() {
 	var user = &User{}
 	var tokenAuth *jwtauth.JWTAuth = jwtauth.New("HS256", []byte("secret"), nil)
@@ -77,6 +99,17 @@ func main() {
 	http.ListenAndServe(":8080", r)
 }
 
+// Register godoc
+// @Summary Регистрация нового пользователя
+// @Description Создает нового пользователя и возвращает JWT токен для аутентификации
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body User true "Данные пользователя для регистрации"
+// @Success 200 {object} TokenResponse "JWT токен успешно создан"
+// @Failure 400 {object} ErrorResponse "Некорректный запрос"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /register [post]
 func (user *User) Register(tokenAuth *jwtauth.JWTAuth) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +138,18 @@ func (user *User) Register(tokenAuth *jwtauth.JWTAuth) http.HandlerFunc {
 	}
 }
 
+// Login godoc
+// @Summary Вход пользователя
+// @Description Аутентифицирует пользователя и возвращает JWT токен
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body User true "Учетные данные пользователя"
+// @Success 200 {object} TokenResponse "JWT токен успешно создан"
+// @Failure 400 {object} ErrorResponse "Некорректный запрос"
+// @Failure 401 {object} ErrorResponse "Неверное имя пользователя или пароль"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /login [post]
 func (user *User) Login(tokenAuth *jwtauth.JWTAuth) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -141,9 +186,11 @@ func (user *User) Login(tokenAuth *jwtauth.JWTAuth) http.HandlerFunc {
 // @Tags address
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param request body RequestAddressSearch true "Search query"
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal server error"
 // @Router /address/search [post]
 func HandlerAddressSearch(geoService GeoServiceInterface) http.HandlerFunc {
@@ -174,9 +221,11 @@ func HandlerAddressSearch(geoService GeoServiceInterface) http.HandlerFunc {
 // @Tags address
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param request body RequestAddressGeocode true "Coordinates"
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal server error"
 // @Router /address/geocode [post]
 func HandlerAddressGeocode(geoService GeoServiceInterface) http.HandlerFunc {

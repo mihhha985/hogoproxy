@@ -1,14 +1,15 @@
-package main
+package geo
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ekomobile/dadata/v2/api/suggest"
-	"github.com/ekomobile/dadata/v2/client"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/ekomobile/dadata/v2/api/suggest"
+	"github.com/ekomobile/dadata/v2/client"
 )
 
 type GeoService struct {

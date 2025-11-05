@@ -87,7 +87,7 @@ func main() {
 
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))
-			//r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
 
 			// Protected routes
 			r.Post("/address/search", HandlerAddressSearch(geoService))

@@ -10,13 +10,18 @@ COPY . .
 RUN go mod tidy
 
 # Собираем приложение
-RUN go build -o main
+RUN go build -o main ./cmd
 
 # Начинаем новую стадию сборки на основе минимального образа
 FROM alpine:latest
 
 # Добавляем исполняемый файл из первой стадии в корневую директорию контейнера
 COPY --from=builder /app/main /main
+
+# Определяем переменные окружения с значениями по умолчанию
+ENV DADATA_API_KEY=""
+ENV DADATA_SECRET_KEY=""
+ENV JWT_SECRET=""
 
 # Открываем порт 8080
 EXPOSE 8080

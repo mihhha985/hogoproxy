@@ -19,6 +19,12 @@ services:
       - "./hugo/content:/app/static"
     ports:
       - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DADATA_API_KEY=${DADATA_API_KEY}
+      - DADATA_SECRET_KEY=${DADATA_SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
         - mylocal
 networks:

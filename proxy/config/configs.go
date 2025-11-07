@@ -19,7 +19,7 @@ type AuthConfig struct {
 func LoadConfig() *Config {
 	godotenv.Load()
 
-	secret := os.Getenv("SECRET_KEY")
+	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		panic("Can not get secret")
 	}

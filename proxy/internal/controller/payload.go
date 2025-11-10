@@ -1,9 +1,11 @@
-package geo
+package controller
+
+import "test/internal/service"
 
 // GeoServiceInterface defines the interface for geo services
 type GeoServiceInterface interface {
-	AddressSearch(query string) ([]*Address, error)
-	GeoCode(lat, lng string) ([]*Address, error)
+	AddressSearch(query string) ([]*service.Address, error)
+	GeoCode(lat, lng string) ([]*service.Address, error)
 }
 
 type RequestAddressSearch struct {
@@ -11,7 +13,7 @@ type RequestAddressSearch struct {
 }
 
 type ResponseAddress struct {
-	Addresses []*Address `json:"addresses"`
+	Addresses []*service.Address `json:"addresses"`
 }
 
 type RequestAddressGeocode struct {

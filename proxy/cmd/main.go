@@ -8,7 +8,8 @@ import (
 
 	"test/config"
 	"test/internal/auth"
-	"test/internal/geo"
+	"test/internal/controller"
+	"test/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -39,8 +40,8 @@ func main() {
 	var config = config.LoadConfig()
 	var user = &auth.User{}
 	var tokenAuth *jwtauth.JWTAuth = jwtauth.New("HS256", []byte(config.JwtSecret), nil)
-	geoService := geo.NewGeoService(config.DaDataAPIKey, config.DaDataSecretKey)
-	geoController := geo.NewGeoController(geoService, tokenAuth)
+	geoService := service.NewGeoService(config.DaDataAPIKey, config.DaDataSecretKey)
+	geoController := controller.NewGeoController(geoService, tokenAuth)
 	authController := auth.NewAuthController(tokenAuth, user)
 
 	// Initialize router

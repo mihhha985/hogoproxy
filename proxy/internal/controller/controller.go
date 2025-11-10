@@ -1,10 +1,10 @@
-package geo
+package controller
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"test/pkg/response"
+	"test/internal/responder"
 
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -38,7 +38,7 @@ func (c *GeoController) HandlerAddressSearch() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req RequestAddressSearch
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
@@ -46,12 +46,12 @@ func (c *GeoController) HandlerAddressSearch() http.HandlerFunc {
 		log.Println("Authenticated user:", claims["email"])
 		addresses, err := c.GeoService.AddressSearch(req.Query)
 		if err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
 		resp := ResponseAddress{Addresses: addresses}
-		response.OutputJSON(w, resp)
+		responder.OutputJSON(w, resp)
 	}
 }
 
@@ -80,11 +80,11 @@ func (c *GeoController) HandlerAddressGeocode() http.HandlerFunc {
 		log.Println("Authenticated user:", claims["email"])
 		addresses, err := c.GeoService.GeoCode(req.Lat, req.Lng)
 		if err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
 		resp := ResponseAddress{Addresses: addresses}
-		response.OutputJSON(w, resp)
+		responder.OutputJSON(w, resp)
 	}
 }

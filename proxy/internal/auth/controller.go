@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"test/pkg/response"
+
+	"test/internal/responder"
 
 	"github.com/go-chi/jwtauth/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -38,25 +39,25 @@ func (c *AuthController) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var data User
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			response.ErrorBadRequest(w, err)
+			responder.ErrorBadRequest(w, err)
 			return
 		}
 
 		_, tokenString, err := c.tokenAuth.Encode(map[string]interface{}{"email": data.Username})
 		if err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
 		hashedBytes, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 		if err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
 		c.user.Password = string(hashedBytes)
 		c.user.Username = data.Username
-		response.OutputJSON(w, TokenResponse{Token: tokenString})
+		responder.OutputJSON(w, TokenResponse{Token: tokenString})
 	}
 }
 
@@ -77,26 +78,26 @@ func (c *AuthController) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var data User
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			response.ErrorBadRequest(w, err)
+			responder.ErrorBadRequest(w, err)
 			return
 		}
 
 		_, tokenString, err := c.tokenAuth.Encode(TokenClaims{"username": data.Username})
 		if err != nil {
-			response.ErrorInternal(w, err)
+			responder.ErrorInternal(w, err)
 			return
 		}
 
 		if data.Username != c.user.Username {
-			response.ErrorUnauthorized(w, errors.New("invalid username or password"))
+			responder.ErrorUnauthorized(w, errors.New("invalid username or password"))
 			return
 		}
 
 		if err := bcrypt.CompareHashAndPassword([]byte(c.user.Password), []byte(data.Password)); err != nil {
-			response.ErrorUnauthorized(w, errors.New("invalid username or password"))
+			responder.ErrorUnauthorized(w, errors.New("invalid username or password"))
 			return
 		}
 
-		response.OutputJSON(w, TokenResponse{Token: tokenString})
+		responder.OutputJSON(w, TokenResponse{Token: tokenString})
 	}
 }
